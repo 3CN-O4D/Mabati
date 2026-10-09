@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — {{ business.name }}</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { brand: { DEFAULT: '#b91c1c', dark: '#7f1d1d' } } } }
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    (function () {
+      var saved = localStorage.getItem('admin-theme');
+      var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.toggle('dark', dark);
+    })();
+  </script>
+</head>
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen">
+
+  <!-- Login view -->
+  <div id="loginView" class="hidden min-h-screen grid place-items-center px-4">
+    <form id="loginForm" class="bg-white dark:bg-slate-900 p-8 rounded-xl shadow border border-slate-200 dark:border-slate-700 w-full max-w-sm">
+      <h1 class="text-xl font-bold mb-1">Admin Login</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">{{ business.name }}</p>
+      <label class="block text-sm font-medium mb-1">Password</label>
+      <input id="password" type="password" required autocomplete="current-password"
+             class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2.5 mb-4 focus:outline-none focus:ring-2 focus:ring-brand" />
+      <button class="w-full bg-brand hover:bg-brand-dark text-white font-semibold py-2.5 rounded-lg">Sign in</button>
+      <p id="loginError" class="hidden text-sm text-red-600 dark:text-red-400 mt-3"></p>
+    </form>
+  </div>
+
+  <!-- Dashboard view -->
+  <div id="dashView" class="hidden">
+    <header class="bg-white dark:bg-slate-900 shadow-sm sticky top-0 z-20 border-b border-slate-200 dark:border-slate-800">
+      <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
+        <h1 class="text-lg font-bold truncate">Inventory Dashboard</h1>
+        <div class="flex items-center gap-2 shrink-0">
+          <button id="themeToggle" aria-label="Toggle dark mode"
+                  class="w-9 h-9 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 grid place-items-center">🌙</button>
+          <a href="/" target="_blank" class="hidden sm:block text-sm text-slate-600 dark:text-slate-300 hover:text-brand">View site ↗</a>
+          <button id="logoutBtn" class="text-sm border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">Logout</button>
+        </div>
+      </div>
+      <nav class="max-w-6xl mx-auto px-4 flex gap-2 pb-3 overflow-x-auto">
+        <button data-tab="products" class="tab-btn active">Products</button>
+        <button data-tab="inquiries" class="tab-btn">Inquiries <span id="inqCount" class="ml-1"></span></button>
+      </nav>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800"><p class="text-sm text-slate-500 dark:text-slate-400">Products</p><p id="statTotal" class="text-2xl font-bold">0</p></div>
+        <div class="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800"><p class="text-sm text-slate-500 dark:text-slate-400">Flash Sales</p><p id="statFlash" class="text-2xl font-bold text-brand dark:text-red-400">0</p></div>
+        <div class="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800"><p class="text-sm text-slate-500 dark:text-slate-400">Best Sellers</p><p id="statBest" class="text-2xl font-bold text-amber-500">0</p></div>
+        <div class="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800"><p class="text-sm text-slate-500 dark:text-slate-400">New Inquiries</p><p id="statInq" class="text-2xl font-bold text-green-600 dark:text-green-400">0</p></div>
+      </div>
+
+      <!-- Products tab -->
+      <section id="tab-products">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold">Products</h2>
+          <button id="addBtn" class="bg-brand hover:bg-brand-dark text-white font-semibold px-4 py-2 rounded-lg text-sm">+ Add Product</button>
+        </div>
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-x-auto">
+          <table class="w-full text-sm min-w-[720px]">
+            <thead class="bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-left">
+              <tr>
+                <th class="p-3">Image</th>
+                <th class="p-3">Name</th>
+                <th class="p-3">Category</th>
+                <th class="p-3">Gauge</th>
+                <th class="p-3">Price</th>
+                <th class="p-3">Sale</th>
+                <th class="p-3">Flags</th>
+                <th class="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+          <p id="tableEmpty" class="hidden p-6 text-slate-500 dark:text-slate-400 text-center">No products yet. Click "Add Product".</p>
+        </div>
+      </section>
+
+      <!-- Inquiries tab -->
+      <section id="tab-inquiries" class="hidden">
+        <h2 class="text-lg font-bold mb-4">Customer Inquiries</h2>
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-x-auto">
+          <table class="w-full text-sm min-w-[720px]">
+            <thead class="bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-left">
+              <tr>
+                <th class="p-3">Name</th>
+                <th class="p-3">Phone</th>
+                <th class="p-3">Product</th>
+                <th class="p-3">Roof size</th>
+                <th class="p-3">Message</th>
+                <th class="p-3">Date</th>
+                <th class="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leadBody"></tbody>
+          </table>
+          <p id="leadEmpty" class="hidden p-6 text-slate-500 dark:text-slate-400 text-center">No inquiries yet.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Product modal -->
+  <div id="modal" class="hidden fixed inset-0 bg-black/50 z-50 grid place-items-center p-4 overflow-y-auto">
+    <form id="productForm" class="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-2xl my-8">
+      <div class="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
+        <h3 id="modalTitle" class="text-lg font-bold">Add Product</h3>
+        <button type="button" id="closeModal" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-2xl leading-none">&times;</button>
+      </div>
+      <div class="p-5 grid md:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1">Name *</label>
+          <input name="name" required class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Category *</label>
+          <select name="category" required class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2 bg-white dark:bg-slate-800">
+            {% for c in categories %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Gauge</label>
+          <input name="gauge" placeholder="e.g. G30" class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Finish / Color</label>
+          <input name="finish_color" placeholder="e.g. Charcoal Grey Matte" class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Price (KSh) *</label>
+          <input name="price" type="number" step="0.01" min="0" required class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Price unit</label>
+          <select name="price_unit" class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2 bg-white dark:bg-slate-800">
+            <option>per meter</option>
+            <option>per sheet</option>
+            <option>per piece</option>
+            <option>per kilo</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Sale Price (KSh) — flash sale</label>
+          <input name="sale_price" type="number" step="0.01" min="0" placeholder="Leave blank = no sale" class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1">Description</label>
+          <textarea name="description" rows="3" class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2"></textarea>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1">Image</label>
+          <input name="image" type="file" accept="image/*" class="w-full text-sm" />
+          <p id="currentImage" class="text-xs text-slate-500 dark:text-slate-400 mt-1"></p>
+        </div>
+        <div class="flex items-center gap-6 md:col-span-2">
+          <label class="inline-flex items-center gap-2 text-sm">
+            <input type="checkbox" name="is_best_seller" class="w-4 h-4 accent-amber-500" /> Best Seller
+          </label>
+          <label class="inline-flex items-center gap-2 text-sm">
+            <input type="checkbox" name="in_stock" checked class="w-4 h-4 accent-green-600" /> In Stock
+          </label>
+        </div>
+        <p id="formError" class="hidden md:col-span-2 text-sm text-red-600 dark:text-red-400"></p>
+      </div>
+      <div class="flex justify-end gap-2 p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 rounded-b-xl">
+        <button type="button" id="cancelModal" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700">Cancel</button>
+        <button class="px-5 py-2 rounded-lg bg-brand hover:bg-brand-dark text-white font-semibold">Save</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const CURRENCY = "KSh";
+    const $ = id => document.getElementById(id);
+    let editingId = null;
+    let products = [];
+    let leads = [];
+
+    function fmt(n) { return Number(n).toLocaleString("en-KE"); }
+    function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+
+    async function api(url, opts = {}) {
+      const res = await fetch(url, opts);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Request failed");
+      return data;
+    }
+
+    // ---- Dark mode ----
+    function applyTheme(dark) {
+      document.documentElement.classList.toggle("dark", dark);
+      $("themeToggle").textContent = dark ? "☀️" : "🌙";
+    }
+    $("themeToggle").addEventListener("click", () => {
+      const dark = !document.documentElement.classList.contains("dark");
+      localStorage.setItem("admin-theme", dark ? "dark" : "light");
+      applyTheme(dark);
+    });
+    applyTheme(document.documentElement.classList.contains("dark"));
+
+    // ---- Auth ----
+    function showLogin() { $("loginView").classList.remove("hidden"); $("dashView").classList.add("hidden"); }
+    function showDash()  { $("dashView").classList.remove("hidden"); $("loginView").classList.add("hidden"); loadProducts(); loadLeads(); }
+
+    $("loginForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      try {
+        await api("/api/admin/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: $("password").value }) });
+        showDash();
+      } catch (err) {
+        $("loginError").textContent = err.message;
+        $("loginError").classList.remove("hidden");
+      }
+    });
+
+    $("logoutBtn").addEventListener("click", async () => { await api("/api/admin/logout", { method: "POST" }); showLogin(); });
+
+    // ---- Tabs ----
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        $("tab-products").classList.toggle("hidden", btn.dataset.tab !== "products");
+        $("tab-inquiries").classList.toggle("hidden", btn.dataset.tab !== "inquiries");
+      });
+    });
+
+    // ---- Products ----
+    async function loadProducts() {
+      products = await api("/api/products");
+      renderTable();
+    }
+
+    function renderTable() {
+      $("tableBody").innerHTML = products.map(p => {
+        const img = p.image_url ? `<img src="${p.image_url}" class="w-12 h-12 object-cover rounded" />` : `<div class="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded grid place-items-center">🏠</div>`;
+        const flags = [];
+        if (p.is_best_seller) flags.push(`<span class="bg-amber-400 text-xs font-bold px-2 py-0.5 rounded text-slate-900">Best</span>`);
+        if (p.sale_price) flags.push(`<span class="bg-brand text-white text-xs font-bold px-2 py-0.5 rounded">Sale</span>`);
+        if (!p.in_stock) flags.push(`<span class="bg-slate-600 text-white text-xs font-bold px-2 py-0.5 rounded">Out</span>`);
+        const fmtPrice = `${CURRENCY} ${fmt(p.price)} / ${esc(p.price_unit || 'meter')}`;
+        return `
+          <tr class="border-t border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+            <td class="p-3">${img}</td>
+            <td class="p-3 font-medium">${esc(p.name)}</td>
+            <td class="p-3">${esc(p.category)}</td>
+            <td class="p-3">${esc(p.gauge || "-")}</td>
+            <td class="p-3 whitespace-nowrap">${fmtPrice}</td>
+            <td class="p-3">${p.sale_price ? `${CURRENCY} ${fmt(p.sale_price)}` : "-"}</td>
+            <td class="p-3"><div class="flex gap-1 flex-wrap">${flags.join("") || "-"}</div></td>
+            <td class="p-3 text-right whitespace-nowrap">
+              <button onclick="editProduct(${p.id})" class="text-brand dark:text-red-400 hover:underline text-sm font-medium">Edit</button>
+              <button onclick="removeProduct(${p.id})" class="text-red-500 hover:underline text-sm font-medium ml-3">Delete</button>
+            </td>
+          </tr>`;
+      }).join("");
+      $("tableEmpty").classList.toggle("hidden", products.length > 0);
+      $("statTotal").textContent = products.length;
+      $("statFlash").textContent = products.filter(p => p.sale_price).length;
+      $("statBest").textContent = products.filter(p => p.is_best_seller).length;
+    }
+
+    function openModal(product) {
+      editingId = product ? product.id : null;
+      $("modalTitle").textContent = product ? "Edit Product" : "Add Product";
+      $("productForm").reset();
+      $("formError").classList.add("hidden");
+      $("currentImage").textContent = "";
+      if (product) {
+        const f = $("productForm");
+        f.name.value = product.name;
+        f.category.value = product.category;
+        f.gauge.value = product.gauge || "";
+        f.finish_color.value = product.finish_color || "";
+        f.price.value = product.price;
+        f.price_unit.value = product.price_unit || "per meter";
+        f.sale_price.value = product.sale_price || "";
+        f.description.value = product.description || "";
+        f.is_best_seller.checked = !!product.is_best_seller;
+        f.in_stock.checked = !!product.in_stock;
+        $("currentImage").textContent = product.image_url ? "Keep current image unless you upload a new one." : "";
+      }
+      $("modal").classList.remove("hidden");
+    }
+    function closeModal() { $("modal").classList.add("hidden"); }
+    $("addBtn").addEventListener("click", () => openModal(null));
+    $("closeModal").addEventListener("click", closeModal);
+    $("cancelModal").addEventListener("click", closeModal);
+    window.editProduct = id => openModal(products.find(p => p.id === id));
+
+    $("productForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const form = e.target;
+      const fd = new FormData();
+      fd.append("name", form.name.value);
+      fd.append("category", form.category.value);
+      fd.append("gauge", form.gauge.value);
+      fd.append("finish_color", form.finish_color.value);
+      fd.append("price", form.price.value);
+      fd.append("price_unit", form.price_unit.value);
+      if (form.sale_price.value) fd.append("sale_price", form.sale_price.value);
+      fd.append("description", form.description.value);
+      fd.append("is_best_seller", form.is_best_seller.checked ? "1" : "0");
+      fd.append("in_stock", form.in_stock.checked ? "1" : "0");
+      if (form.image.files[0]) fd.append("image", form.image.files[0]);
+      try {
+        await api(editingId ? `/api/admin/products/${editingId}` : "/api/admin/products", { method: "POST", body: fd });
+        closeModal();
+        loadProducts();
+      } catch (err) {
+        $("formError").textContent = err.message;
+        $("formError").classList.remove("hidden");
+      }
+    });
+
+    window.removeProduct = async id => {
+      if (!confirm("Delete this product permanently?")) return;
+      await api(`/api/admin/products/${id}`, { method: "DELETE" });
+      loadProducts();
+    };
+
+    // ---- Inquiries ----
+    async function loadLeads() {
+      leads = await api("/api/admin/inquiries");
+      const unhandled = leads.filter(l => !l.handled).length;
+      $("statInq").textContent = unhandled;
+      $("inqCount").textContent = unhandled ? `(${unhandled})` : "";
+      $("leadBody").innerHTML = leads.map(l => `
+        <tr class="border-t border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 ${l.handled ? "opacity-60" : ""}">
+          <td class="p-3 font-medium">${esc(l.name)}</td>
+          <td class="p-3"><a class="hover:text-brand" href="tel:${esc(l.phone)}">${esc(l.phone)}</a></td>
+          <td class="p-3">${esc(l.product_name || "-")}</td>
+          <td class="p-3">${esc(l.roof_size || "-")}</td>
+          <td class="p-3 max-w-xs">${esc(l.message || "-")}</td>
+          <td class="p-3 text-xs text-slate-500 dark:text-slate-400">${new Date(l.created_at).toLocaleString()}</td>
+          <td class="p-3 text-right whitespace-nowrap">
+            <button onclick="markLead(${l.id}, ${l.handled ? 0 : 1})" class="text-amber-500 hover:underline text-sm font-medium">${l.handled ? "Reopen" : "Mark done"}</button>
+            <button onclick="removeLead(${l.id})" class="text-red-500 hover:underline text-sm font-medium ml-3">Delete</button>
+          </td>
+        </tr>`).join("");
+      $("leadEmpty").classList.toggle("hidden", leads.length > 0);
+    }
+
+    window.markLead = async (id, handled) => {
+      await api(`/api/admin/inquiries/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ handled }) });
+      loadLeads();
+    };
+    window.removeLead = async id => {
+      if (!confirm("Delete this inquiry?")) return;
+      await api(`/api/admin/inquiries/${id}`, { method: "DELETE" });
+      loadLeads();
+    };
+
+    // ---- Boot ----
+    (async () => {
+      try {
+        const s = await api("/api/admin/session");
+        s.authenticated ? showDash() : showLogin();
+      } catch { showLogin(); }
+    })();
+  </script>
+
+  <style>
+    .tab-btn {
+      border: 1px solid #cbd5e1; color: #334155; padding: .45rem 1rem;
+      border-radius: 9999px; font-size: .85rem; font-weight: 600; white-space: nowrap;
+      transition: all .15s;
+    }
+    .dark .tab-btn { background: #1e293b; border-color: #475569; color: #cbd5e1; }
+    .tab-btn.active { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+    .dark .tab-btn.active { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+  </style>
+</body>
+</html>

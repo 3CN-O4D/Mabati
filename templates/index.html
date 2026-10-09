@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ business.name }} — Roofing Sheets & Ironsheets in Kenya</title>
+  <meta name="description" content="Browse quality mabati ironsheets: box profile, tile profile, corrugated and accessories. Order via call or WhatsApp." />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { brand: { DEFAULT: '#b91c1c', dark: '#7f1d1d' } } } }
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.toggle('dark', dark);
+    })();
+  </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased">
+
+  <!-- Top contact bar -->
+  <div class="bg-brand dark:bg-brand-dark text-white text-sm">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-2">
+      <a href="tel:{{ business.phone }}" class="hover:underline">{{ business.location }}</a>
+      <div class="flex items-center gap-4">
+        <a href="tel:{{ business.phone }}" class="hover:underline">Call: {{ business.phone }}</a>
+        <a href="https://wa.me/{{ business.whatsapp }}" target="_blank" rel="noopener" class="font-medium hover:underline">WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="bg-white dark:bg-slate-900 shadow-sm sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2 min-w-0">
+        <span class="w-9 h-9 shrink-0 rounded bg-brand text-white grid place-items-center font-bold">M</span>
+        <span class="text-lg md:text-xl font-extrabold tracking-tight truncate">{{ business.name }}</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+        <a href="#flash" class="hover:text-brand">Flash Sales</a>
+        <a href="#best" class="hover:text-brand">Best Sellers</a>
+        <a href="#catalog" class="hover:text-brand">Catalog</a>
+        <a href="#quote" class="hover:text-brand">Get a Quote</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <button id="themeToggle" aria-label="Toggle dark mode"
+                class="w-9 h-9 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 grid place-items-center text-lg">🌙</button>
+        <a href="https://wa.me/{{ business.whatsapp }}" target="_blank" rel="noopener"
+           class="hidden sm:inline-block bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-semibold">
+          Order on WhatsApp
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="bg-gradient-to-r from-brand-dark to-brand text-white">
+    <div class="max-w-7xl mx-auto px-4 py-14 md:py-20">
+      <h1 class="text-3xl md:text-5xl font-extrabold leading-tight max-w-3xl">
+        Quality Mabati &amp; Ironsheets, delivered across Kenya.
+      </h1>
+      <p class="mt-4 text-white/90 max-w-xl">
+        Box profile, tile profile, corrugated and accessories. Live prices, real stock,
+        instant ordering by call or WhatsApp.
+      </p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a href="#catalog" class="bg-white text-brand px-5 py-3 rounded-lg font-semibold">Browse Catalog</a>
+        <a href="tel:{{ business.phone }}" class="border border-white/70 px-5 py-3 rounded-lg font-semibold">Call {{ business.phone }}</a>
+      </div>
+    </div>
+  </section>
+
+  <main class="max-w-7xl mx-auto px-4">
+
+    <!-- Flash sales -->
+    <section id="flash" class="py-10">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold">⚡ Flash Sales</h2>
+        <span id="flashTimer" class="text-sm font-semibold text-brand dark:text-red-400"></span>
+      </div>
+      <div id="flashGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"></div>
+      <p id="flashEmpty" class="hidden text-slate-500 dark:text-slate-400">No active flash sales right now.</p>
+    </section>
+
+    <!-- Best sellers -->
+    <section id="best" class="py-10 border-t border-slate-200 dark:border-slate-800">
+      <h2 class="text-2xl font-bold mb-4">🏆 Best Sellers</h2>
+      <div id="bestGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"></div>
+      <p id="bestEmpty" class="hidden text-slate-500 dark:text-slate-400">No best sellers yet.</p>
+    </section>
+
+    <!-- Catalog -->
+    <section id="catalog" class="py-10 border-t border-slate-200 dark:border-slate-800">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <h2 class="text-2xl font-bold">Full Catalog</h2>
+        <input id="search" type="search" placeholder="Search sheets, gauge, category…"
+               class="w-full md:w-80 border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand" />
+      </div>
+      <div id="filters" class="flex flex-wrap gap-2 mb-6">
+        <button data-category="all" class="filter-btn active">All</button>
+        {% for c in categories %}
+        <button data-category="{{ c }}" class="filter-btn">{{ c }}</button>
+        {% endfor %}
+        <button data-flag="best_seller" class="filter-btn">Best Sellers</button>
+        <button data-flag="on_sale" class="filter-btn">On Sale</button>
+      </div>
+      <div id="catalogGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"></div>
+      <p id="catalogEmpty" class="hidden text-slate-500 dark:text-slate-400">No products match your search.</p>
+    </section>
+
+    <!-- Quote form -->
+    <section id="quote" class="py-10 border-t border-slate-200 dark:border-slate-800">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 md:p-10">
+        <div class="grid md:grid-cols-2 gap-8">
+          <div>
+            <h2 class="text-2xl font-bold">Get a tailored quote</h2>
+            <p class="mt-3 text-slate-600 dark:text-slate-300">
+              Tell us your roof size and what you need. We'll respond with a custom price by
+              call or WhatsApp — usually within minutes.
+            </p>
+            <a href="https://wa.me/{{ business.whatsapp }}" target="_blank" rel="noopener"
+               class="mt-5 inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold px-5 py-3 rounded-lg">
+              WhatsApp us instead →
+            </a>
+          </div>
+          <form id="quoteForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1" for="qName">Your name *</label>
+              <input id="qName" required
+                     class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1" for="qPhone">Phone number *</label>
+              <input id="qPhone" type="tel" required placeholder="07XX XXX XXX"
+                     class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-1" for="qRoof">Roof size (m²)</label>
+                <input id="qRoof" type="text" inputmode="decimal" placeholder="e.g. 120"
+                       class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1" for="qProduct">Product</label>
+                <input id="qProduct" readonly
+                       class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2.5 bg-slate-100 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400"
+                       placeholder="Optional" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1" for="qMessage">Message</label>
+              <textarea id="qMessage" rows="3"
+                        class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand"></textarea>
+            </div>
+            <p id="quoteMsg" class="hidden text-sm"></p>
+            <button type="submit"
+                    class="w-full bg-brand hover:bg-brand-dark text-white font-semibold py-3 rounded-lg">
+              Request Quote
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating WhatsApp (desktop) -->
+  <a href="https://wa.me/{{ business.whatsapp }}" target="_blank" rel="noopener"
+     class="hidden md:grid fixed bottom-5 right-5 z-40 bg-green-500 hover:bg-green-600 text-white w-14 h-14 rounded-full place-items-center shadow-lg text-2xl"
+     aria-label="Chat on WhatsApp">💬</a>
+
+  <!-- Fixed mobile Call/WhatsApp bar -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+    <div class="grid grid-cols-2 gap-2 p-2">
+      <a href="tel:{{ business.phone }}"
+         class="flex items-center justify-center gap-2 bg-brand text-white font-semibold py-3 rounded-xl text-sm">📞 Call Now</a>
+      <a href="https://wa.me/{{ business.whatsapp }}" target="_blank" rel="noopener"
+         class="flex items-center justify-center gap-2 bg-green-500 text-white font-semibold py-3 rounded-xl text-sm">💬 WhatsApp</a>
+    </div>
+  </nav>
+
+  <footer class="bg-slate-900 dark:bg-slate-950 text-slate-300 mt-10 pb-24 md:pb-10">
+    <div class="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-3 gap-8">
+      <div>
+        <h3 class="text-white font-bold text-lg">{{ business.name }}</h3>
+        <p class="mt-2 text-sm text-slate-400">{{ business.location }}</p>
+      </div>
+      <div class="text-sm space-y-1">
+        <p class="text-white font-semibold">Contact</p>
+        <p><a class="hover:text-white" href="tel:{{ business.phone }}">{{ business.phone }}</a></p>
+        <p><a class="hover:text-white" href="https://wa.me/{{ business.whatsapp }}">WhatsApp</a></p>
+      </div>
+      <div class="text-sm text-slate-400">
+        &copy; <span id="year"></span> {{ business.name }}. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const WHATSAPP = "{{ business.whatsapp }}";
+    const PHONE = "{{ business.phone }}";
+    const CURRENCY = "KSh";
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // ---- Dark mode ----
+    function applyTheme(dark) {
+      document.documentElement.classList.toggle("dark", dark);
+      document.getElementById("themeToggle").textContent = dark ? "☀️" : "🌙";
+    }
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      const dark = !document.documentElement.classList.contains("dark");
+      localStorage.setItem("theme", dark ? "dark" : "light");
+      applyTheme(dark);
+    });
+    applyTheme(document.documentElement.classList.contains("dark"));
+
+    // ---- Helpers ----
+    function fmt(n) { return Number(n).toLocaleString("en-KE"); }
+    function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+
+    function waLink(p) {
+      const msg = `Hello, I'm interested in "${p.name}" (${p.category}). Price: ${CURRENCY} ${fmt(p.price)} / ${p.price_unit}.`;
+      return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+    }
+
+    function priceBlock(p) {
+      const onSale = p.sale_price && Number(p.sale_price) > 0;
+      const unit = p.price_unit ? ` <span class="text-xs text-slate-400">/ ${esc(p.price_unit)}</span>` : "";
+      if (onSale) return `${CURRENCY} <b>${fmt(p.sale_price)}</b>${unit} <s>${CURRENCY} ${fmt(p.price)}</s>`;
+      return `${CURRENCY} <b>${fmt(p.price)}</b>${unit}`;
+    }
+
+    function card(p) {
+      const img = p.image_url
+        ? `<img src="${p.image_url}" alt="${esc(p.name)}" loading="lazy" data-zoom="${p.image_url}"
+               class="w-full h-44 object-cover cursor-zoom-in">`
+        : `<div class="w-full h-44 bg-slate-100 dark:bg-slate-800 grid place-items-center text-4xl">🏠</div>`;
+      const badges = [];
+      if (p.sale_price) badges.push(`<span class="bg-brand text-white text-xs font-bold px-2 py-0.5 rounded">-${p.discount_percent}%</span>`);
+      if (p.is_best_seller) badges.push(`<span class="bg-amber-400 text-slate-900 text-xs font-bold px-2 py-0.5 rounded">Best Seller</span>`);
+      if (!p.in_stock) badges.push(`<span class="bg-slate-700 text-white text-xs font-bold px-2 py-0.5 rounded">Out of stock</span>`);
+      const specs = [];
+      if (p.gauge) specs.push(`Gauge ${esc(p.gauge)}`);
+      if (p.finish_color) specs.push(esc(p.finish_color));
+      return `
+        <article class="bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden flex flex-col border border-slate-200 dark:border-slate-700">
+          <div class="relative">${img}
+            <div class="absolute top-2 left-2 flex gap-1">${badges.join("")}</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <span class="text-xs uppercase tracking-wide text-brand dark:text-red-400 font-semibold">${esc(p.category)}</span>
+            <h3 class="font-semibold mt-1 leading-snug">${esc(p.name)}</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">${specs.join(" · ")}</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 flex-1 line-clamp-2">${esc(p.description || "")}</p>
+            <div class="mt-3 text-lg leading-snug">${priceBlock(p)}</div>
+            <div class="mt-3 grid grid-cols-2 gap-2">
+              <a href="${waLink(p)}" target="_blank" rel="noopener"
+                 class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-lg text-sm text-center">WhatsApp</a>
+              <button onclick="requestQuote(${p.id})"
+                 class="bg-brand hover:bg-brand-dark text-white font-semibold py-2 rounded-lg text-sm">Quote</button>
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function render(el, emptyEl, items) {
+      el.innerHTML = items.map(card).join("");
+      emptyEl.classList.toggle("hidden", items.length > 0);
+      el.querySelectorAll("img[data-zoom]").forEach(img => img.addEventListener("click", () => lightbox(img.dataset.zoom)));
+    }
+
+    async function getJSON(url) {
+      const res = await fetch(url);
+      return res.ok ? res.json() : [];
+    }
+
+    async function loadFlash() {
+      render(document.getElementById("flashGrid"), document.getElementById("flashEmpty"), await getJSON("/api/flash-sales"));
+    }
+    async function loadBest() {
+      render(document.getElementById("bestGrid"), document.getElementById("bestEmpty"), await getJSON("/api/best-sellers"));
+    }
+
+    // ---- Catalog filters ----
+    const state = { category: "all", flag: "", search: "" };
+    async function loadCatalog() {
+      const params = new URLSearchParams();
+      if (state.search) params.set("search", state.search);
+      if (state.category && state.category !== "all") params.set("category", state.category);
+      if (state.flag) params.set("filter", state.flag);
+      render(document.getElementById("catalogGrid"), document.getElementById("catalogEmpty"),
+             await getJSON("/api/products?" + params.toString()));
+    }
+
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        state.category = btn.dataset.category || "all";
+        state.flag = btn.dataset.flag || "";
+        loadCatalog();
+      });
+    });
+
+    let searchTimer;
+    document.getElementById("search").addEventListener("input", e => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => { state.search = e.target.value; loadCatalog(); }, 250);
+    });
+
+    // ---- Lightbox ----
+    function lightbox(src) {
+      let lb = document.getElementById("lightbox");
+      if (!lb) {
+        lb = document.createElement("div");
+        lb.id = "lightbox";
+        lb.innerHTML = `<div id="lightboxWrap" class="fixed inset-0 z-50 bg-black/90 grid place-items-center p-4 cursor-zoom-out" onclick="closeLightbox()">
+          <img class="max-h-[90vh] max-w-full rounded-lg shadow-2xl" alt="Product image">
+          <span class="absolute top-4 right-6 text-white text-3xl">&times;</span>
+        </div>`;
+        document.body.appendChild(lb);
+      }
+      lb.querySelector("img").src = src;
+    }
+    function closeLightbox() {
+      const lb = document.getElementById("lightbox");
+      if (lb) lb.remove();
+    }
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeLightbox(); });
+
+    // ---- Quote form ----
+    let products = [];
+    async function requestQuote(id) {
+      const p = products.find(x => x.id === id);
+      document.getElementById("qProduct").value = p ? p.name : "";
+      document.getElementById("quote").scrollIntoView({ behavior: "smooth" });
+      document.getElementById("qRoof").focus();
+    }
+
+    document.getElementById("quoteForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const msg = document.getElementById("quoteMsg");
+      try {
+        const res = await fetch("/api/inquiries", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: qName.value,
+            phone: qPhone.value,
+            roof_size: qRoof.value,
+            product_name: qProduct.value,
+            message: qMessage.value,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Something went wrong");
+        msg.textContent = "Thanks! We'll get back to you shortly.";
+        msg.className = "text-sm text-green-600 dark:text-green-400";
+        msg.classList.remove("hidden");
+        e.target.reset();
+      } catch (err) {
+        msg.textContent = err.message;
+        msg.className = "text-sm text-red-600 dark:text-red-400";
+        msg.classList.remove("hidden");
+      }
+    });
+
+    // ---- Flash countdown (resets daily at midnight) ----
+    function tickFlashTimer() {
+      const now = new Date();
+      const end = new Date(now); end.setHours(24, 0, 0, 0);
+      const diff = Math.max(0, end - now);
+      const h = String(Math.floor(diff / 3.6e6)).padStart(2, "0");
+      const m = String(Math.floor((diff % 3.6e6) / 6e4)).padStart(2, "0");
+      const s = String(Math.floor((diff % 6e4) / 1000)).padStart(2, "0");
+      document.getElementById("flashTimer").textContent = `Ends in ${h}:${m}:${s}`;
+    }
+
+    // ---- Boot ----
+    (async () => {
+      products = await getJSON("/api/products");
+      loadFlash();
+      loadBest();
+      loadCatalog();
+      tickFlashTimer();
+      setInterval(tickFlashTimer, 1000);
+    })();
+  </script>
+
+  <style>
+    .filter-btn {
+      border: 1px solid #cbd5e1; background: #fff; color: #334155;
+      padding: .5rem 1rem; border-radius: 9999px; font-size: .85rem; font-weight: 600;
+      transition: all .15s;
+    }
+    .dark .filter-btn { background: #1e293b; border-color: #475569; color: #cbd5e1; }
+    .filter-btn:hover { border-color: #b91c1c; color: #b91c1c; }
+    .dark .filter-btn:hover { border-color: #f87171; color: #f87171; }
+    .filter-btn.active { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+    .dark .filter-btn.active { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+  </style>
+</body>
+</html>

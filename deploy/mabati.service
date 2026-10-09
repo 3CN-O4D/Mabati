@@ -1,0 +1,23 @@
+# /etc/systemd/system/mabati.service
+# Runs the Mabati Flask app under gunicorn as a background service.
+
+[Unit]
+Description=Mabati ironsheets catalog (gunicorn)
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/mabati-site
+EnvironmentFile=/var/www/mabati-site/.env
+ExecStart=/var/www/mabati-site/.venv/bin/gunicorn \
+    --workers 3 \
+    --bind 127.0.0.1:5000 \
+    --access-logfile - \
+    --error-logfile - \
+    app:app
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
