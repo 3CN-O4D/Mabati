@@ -5,18 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{ business.name }} — Roofing Sheets & Ironsheets in Kenya</title>
   <meta name="description" content="Browse quality mabati ironsheets: box profile, tile profile, corrugated and accessories. Order via call or WhatsApp." />
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: { extend: { colors: { brand: { DEFAULT: '#b91c1c', dark: '#7f1d1d' } } } }
     };
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     (function () {
       var saved = localStorage.getItem('theme');
       var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.classList.toggle('dark', dark);
+      document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
     })();
   </script>
 </head>
@@ -35,24 +36,35 @@
 
   <!-- Header -->
   <header class="bg-white dark:bg-slate-900 shadow-sm sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
       <a href="/" class="flex items-center gap-2 min-w-0">
         <span class="w-9 h-9 shrink-0 rounded bg-brand text-white grid place-items-center font-bold">M</span>
         <span class="text-lg md:text-xl font-extrabold tracking-tight truncate">{{ business.name }}</span>
       </a>
-      <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+      <nav class="hidden lg:flex items-center gap-6 text-sm font-medium">
         <a href="#flash" class="hover:text-brand">Flash Sales</a>
         <a href="#best" class="hover:text-brand">Best Sellers</a>
         <a href="#catalog" class="hover:text-brand">Catalog</a>
         <a href="#quote" class="hover:text-brand">Get a Quote</a>
       </nav>
       <div class="flex items-center gap-2">
+        <div class="relative" id="catMenu">
+          <button id="catBtn"
+                  class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-100 bg-white dark:bg-slate-800 hover:border-brand hover:text-brand">
+            Categories <span class="text-xs">▾</span>
+          </button>
+          <div id="catDropdown" class="hidden absolute right-0 mt-2 w-56 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden z-50">
+            <button data-category="all" class="cat-item">All products</button>
+            {% for c in categories %}
+            <button data-category="{{ c }}" class="cat-item">{{ c }}</button>
+            {% endfor %}
+            <div class="my-1 border-t border-slate-200 dark:border-slate-700"></div>
+            <button data-flag="best_seller" class="cat-item">★ Best Sellers</button>
+            <button data-flag="on_sale" class="cat-item">⚡ On Sale</button>
+          </div>
+        </div>
         <button id="themeToggle" aria-label="Toggle dark mode"
-                class="w-9 h-9 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 grid place-items-center text-lg">🌙</button>
-        <a href="https://wa.me/{{ business.whatsapp }}" target="_blank" rel="noopener"
-           class="hidden sm:inline-block bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-semibold">
-          Order on WhatsApp
-        </a>
+                class="w-9 h-9 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-100 hover:border-brand grid place-items-center text-base">🌙</button>
       </div>
     </div>
   </header>
@@ -97,8 +109,14 @@
     <section id="catalog" class="py-10 border-t border-slate-200 dark:border-slate-800">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <h2 class="text-2xl font-bold">Full Catalog</h2>
-        <input id="search" type="search" placeholder="Search sheets, gauge, category…"
-               class="w-full md:w-80 border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand" />
+        <div class="relative w-full md:w-80">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm">🔍</span>
+          <input id="search" type="search" placeholder="Search sheets, gauge, category…"
+                 class="w-full border border-slate-300 dark:border-slate-600 rounded-lg pl-9 pr-4 py-2.5
+                        bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100
+                        placeholder:text-slate-400 dark:placeholder:text-slate-400
+                        focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand" />
+        </div>
       </div>
       <div id="filters" class="flex flex-wrap gap-2 mb-6">
         <button data-category="all" class="filter-btn active">All</button>
@@ -208,9 +226,11 @@
     // ---- Dark mode ----
     function applyTheme(dark) {
       document.documentElement.classList.toggle("dark", dark);
+      document.documentElement.style.colorScheme = dark ? "dark" : "light";
       document.getElementById("themeToggle").textContent = dark ? "☀️" : "🌙";
     }
-    document.getElementById("themeToggle").addEventListener("click", () => {
+    document.getElementById("themeToggle").addEventListener("click", ev => {
+      ev.stopPropagation();
       const dark = !document.documentElement.classList.contains("dark");
       localStorage.setItem("theme", dark ? "dark" : "light");
       applyTheme(dark);
@@ -243,17 +263,17 @@
       if (p.is_best_seller) badges.push(`<span class="bg-amber-400 text-slate-900 text-xs font-bold px-2 py-0.5 rounded">Best Seller</span>`);
       if (!p.in_stock) badges.push(`<span class="bg-slate-700 text-white text-xs font-bold px-2 py-0.5 rounded">Out of stock</span>`);
       const specs = [];
-      if (p.gauge) specs.push(`Gauge ${esc(p.gauge)}`);
-      if (p.finish_color) specs.push(esc(p.finish_color));
+      if (p.gauge) specs.push(`<button type="button" data-gauge="${esc(p.gauge)}" class="chip" title="Filter by ${esc(p.gauge)}">Gauge ${esc(p.gauge)}</button>`);
+      if (p.finish_color) specs.push(`<span class="chip">${esc(p.finish_color)}</span>`);
       return `
         <article class="bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden flex flex-col border border-slate-200 dark:border-slate-700">
           <div class="relative">${img}
             <div class="absolute top-2 left-2 flex gap-1">${badges.join("")}</div>
           </div>
           <div class="p-4 flex flex-col flex-1">
-            <span class="text-xs uppercase tracking-wide text-brand dark:text-red-400 font-semibold">${esc(p.category)}</span>
+            <button type="button" data-cat="${esc(p.category)}" class="cat-label" title="Show all ${esc(p.category)}">${esc(p.category)}</button>
             <h3 class="font-semibold mt-1 leading-snug">${esc(p.name)}</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">${specs.join(" · ")}</p>
+            <p class="flex flex-wrap gap-1.5 mt-2">${specs.join("")}</p>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 flex-1 line-clamp-2">${esc(p.description || "")}</p>
             <div class="mt-3 text-lg leading-snug">${priceBlock(p)}</div>
             <div class="mt-3 grid grid-cols-2 gap-2">
@@ -295,14 +315,52 @@
              await getJSON("/api/products?" + params.toString()));
     }
 
-    document.querySelectorAll(".filter-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        state.category = btn.dataset.category || "all";
-        state.flag = btn.dataset.flag || "";
-        loadCatalog();
+    function setFilter(category, flag) {
+      state.category = category || "all";
+      state.flag = flag || "";
+      document.querySelectorAll(".filter-btn").forEach(b => {
+        const match = (b.dataset.category && b.dataset.category === state.category)
+          || (b.dataset.flag && b.dataset.flag === state.flag)
+          || (!b.dataset.category && !b.dataset.flag && state.category === "all" && !state.flag);
+        b.classList.toggle("active", !!match);
       });
+      loadCatalog();
+      document.getElementById("catalog").scrollIntoView({ behavior: "smooth" });
+    }
+
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.addEventListener("click", () => setFilter(btn.dataset.category, btn.dataset.flag));
+    });
+
+    // Category dropdown menu
+    const catBtn = document.getElementById("catBtn");
+    const catDropdown = document.getElementById("catDropdown");
+    catBtn.addEventListener("click", e => { e.stopPropagation(); catDropdown.classList.toggle("hidden"); });
+    document.addEventListener("click", e => {
+      if (!catDropdown.classList.contains("hidden") && !e.target.closest("#catMenu")) {
+        catDropdown.classList.add("hidden");
+      }
+    });
+    document.querySelectorAll(".cat-item").forEach(item => {
+      item.addEventListener("click", () => {
+        catDropdown.classList.add("hidden");
+        setFilter(item.dataset.category, item.dataset.flag);
+      });
+    });
+
+    // Card chips: category label + gauge chip filter the catalog
+    document.addEventListener("click", e => {
+      const cat = e.target.closest("[data-cat]");
+      const gauge = e.target.closest("[data-gauge]");
+      if (cat) { setFilter(cat.dataset.cat, ""); return; }
+      if (gauge) {
+        state.search = gauge.dataset.gauge;
+        state.category = "all"; state.flag = "";
+        document.getElementById("search").value = gauge.dataset.gauge;
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        loadCatalog();
+        document.getElementById("catalog").scrollIntoView({ behavior: "smooth" });
+      }
     });
 
     let searchTimer;
@@ -392,15 +450,41 @@
 
   <style>
     .filter-btn {
-      border: 1px solid #cbd5e1; background: #fff; color: #334155;
+      border: 1px solid #cbd5e1; background: #ffffff; color: #1e293b;
       padding: .5rem 1rem; border-radius: 9999px; font-size: .85rem; font-weight: 600;
-      transition: all .15s;
+      transition: all .15s; cursor: pointer;
     }
-    .dark .filter-btn { background: #1e293b; border-color: #475569; color: #cbd5e1; }
+    .dark .filter-btn { background: #334155; border-color: #64748b; color: #f8fafc; }
     .filter-btn:hover { border-color: #b91c1c; color: #b91c1c; }
-    .dark .filter-btn:hover { border-color: #f87171; color: #f87171; }
-    .filter-btn.active { background: #b91c1c; border-color: #b91c1c; color: #fff; }
-    .dark .filter-btn.active { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+    .dark .filter-btn:hover { border-color: #fca5a5; color: #ffffff; }
+    .filter-btn.active { background: #b91c1c; border-color: #b91c1c; color: #ffffff; }
+    .dark .filter-btn.active { background: #dc2626; border-color: #dc2626; color: #ffffff; }
+
+    .cat-item {
+      display: block; width: 100%; text-align: left; padding: .55rem 1rem;
+      font-size: .875rem; font-weight: 500; cursor: pointer;
+      color: #1e293b;
+    }
+    .dark .cat-item { color: #e2e8f0; }
+    .cat-item:hover { background: #fee2e2; color: #b91c1c; }
+    .dark .cat-item:hover { background: #1e293b; color: #fca5a5; }
+
+    .cat-label {
+      text-align: left; font-size: .75rem; text-transform: uppercase; letter-spacing: .05em;
+      font-weight: 700; color: #b91c1c; cursor: pointer; transition: .15s;
+    }
+    .cat-label:hover { text-decoration: underline; }
+    .dark .cat-label { color: #f87171; }
+
+    .chip {
+      display: inline-block; padding: .25rem .6rem; border-radius: 9999px;
+      font-size: .7rem; font-weight: 600; line-height: 1;
+      background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; cursor: pointer;
+      transition: .15s;
+    }
+    .chip:hover { border-color: #b91c1c; color: #b91c1c; }
+    .dark .chip { background: #1e293b; color: #cbd5e1; border-color: #475569; }
+    .dark .chip:hover { border-color: #fca5a5; color: #ffffff; }
   </style>
 </body>
 </html>

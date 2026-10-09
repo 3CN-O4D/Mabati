@@ -5,18 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin — {{ business.name }}</title>
   <meta name="robots" content="noindex, nofollow" />
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: { extend: { colors: { brand: { DEFAULT: '#b91c1c', dark: '#7f1d1d' } } } }
     };
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     (function () {
       var saved = localStorage.getItem('admin-theme');
       var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.classList.toggle('dark', dark);
+      document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
     })();
   </script>
 </head>
@@ -29,7 +30,7 @@
       <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">{{ business.name }}</p>
       <label class="block text-sm font-medium mb-1">Password</label>
       <input id="password" type="password" required autocomplete="current-password"
-             class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg px-3 py-2.5 mb-4 focus:outline-none focus:ring-2 focus:ring-brand" />
+             class="w-full border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 rounded-lg px-3 py-2.5 mb-4 focus:outline-none focus:ring-2 focus:ring-brand" />
       <button class="w-full bg-brand hover:bg-brand-dark text-white font-semibold py-2.5 rounded-lg">Sign in</button>
       <p id="loginError" class="hidden text-sm text-red-600 dark:text-red-400 mt-3"></p>
     </form>
@@ -202,6 +203,7 @@
     // ---- Dark mode ----
     function applyTheme(dark) {
       document.documentElement.classList.toggle("dark", dark);
+      document.documentElement.style.colorScheme = dark ? "dark" : "light";
       $("themeToggle").textContent = dark ? "☀️" : "🌙";
     }
     $("themeToggle").addEventListener("click", () => {
@@ -375,13 +377,15 @@
 
   <style>
     .tab-btn {
-      border: 1px solid #cbd5e1; color: #334155; padding: .45rem 1rem;
-      border-radius: 9999px; font-size: .85rem; font-weight: 600; white-space: nowrap;
-      transition: all .15s;
+      border: 1px solid #cbd5e1; background: #ffffff; color: #1e293b;
+      padding: .45rem 1rem; border-radius: 9999px; font-size: .85rem; font-weight: 600;
+      white-space: nowrap; transition: all .15s; cursor: pointer;
     }
-    .dark .tab-btn { background: #1e293b; border-color: #475569; color: #cbd5e1; }
-    .tab-btn.active { background: #b91c1c; border-color: #b91c1c; color: #fff; }
-    .dark .tab-btn.active { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+    .dark .tab-btn { background: #334155; border-color: #64748b; color: #f8fafc; }
+    .tab-btn:hover { border-color: #b91c1c; color: #b91c1c; }
+    .dark .tab-btn:hover { border-color: #fca5a5; color: #ffffff; }
+    .tab-btn.active { background: #b91c1c; border-color: #b91c1c; color: #ffffff; }
+    .dark .tab-btn.active { background: #dc2626; border-color: #dc2626; color: #ffffff; }
   </style>
 </body>
 </html>
