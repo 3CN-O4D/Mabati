@@ -13,9 +13,10 @@ env/
 *.db
 *.sqlite3
 
-# Uploaded media (keep the folder, ignore its contents)
+# Uploaded media (track sample seed images, ignore future admin uploads)
 static/uploads/*
 !static/uploads/.gitkeep
+!static/uploads/sample_*.jpg
 
 # OS / editor
 .DS_Store
