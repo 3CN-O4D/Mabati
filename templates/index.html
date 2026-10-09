@@ -109,13 +109,19 @@
     <section id="catalog" class="py-10 border-t border-slate-200 dark:border-slate-800">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <h2 class="text-2xl font-bold">Full Catalog</h2>
-        <div class="relative w-full md:w-80">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm">🔍</span>
-          <input id="search" type="search" placeholder="Search sheets, gauge, category…"
-                 class="w-full border border-slate-300 dark:border-slate-600 rounded-lg pl-9 pr-4 py-2.5
-                        bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100
-                        placeholder:text-slate-400 dark:placeholder:text-slate-400
-                        focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand" />
+        <div class="flex w-full md:w-96">
+          <div class="relative flex-1">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm">🔍</span>
+            <input id="search" type="search" placeholder="Search sheets, gauge, category…"
+                   autocomplete="off"
+                   class="w-full h-full border border-r-0 border-slate-300 rounded-l-lg pl-9 pr-3 py-2.5
+                          bg-white text-slate-800 placeholder:text-slate-400
+                          focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand" />
+          </div>
+          <button id="searchBtn"
+                  class="bg-brand hover:bg-brand-dark text-white font-semibold px-5 rounded-r-lg text-sm">
+            Search
+          </button>
         </div>
       </div>
       <div id="filters" class="flex flex-wrap gap-2 mb-6">
@@ -368,6 +374,11 @@
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => { state.search = e.target.value; loadCatalog(); }, 250);
     });
+    document.getElementById("searchBtn").addEventListener("click", () => {
+      state.search = document.getElementById("search").value;
+      loadCatalog();
+      document.getElementById("catalog").scrollIntoView({ behavior: "smooth" });
+    });
 
     // ---- Lightbox ----
     function lightbox(src) {
@@ -449,6 +460,14 @@
   </script>
 
   <style>
+    .dark #search {
+      background-color: #1e293b !important;
+      color: #f8fafc !important;
+      border-color: #475569;
+    }
+    .dark #search::placeholder { color: #b6c2d6; }
+    #search::-webkit-search-cancel-button { filter: none; }
+
     .filter-btn {
       border: 1px solid #cbd5e1; background: #ffffff; color: #1e293b;
       padding: .5rem 1rem; border-radius: 9999px; font-size: .85rem; font-weight: 600;
